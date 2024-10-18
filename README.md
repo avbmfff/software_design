@@ -141,6 +141,7 @@ ${\color{purple} \textbf{Исходы события:}}$
 <a id="фт18">18.</a>  $${\color{green} \textbf{Задача не может существовать без статуса}}$$
 
 [Вернуться к заданию из 4 ЛР](#back)
+
 [Вернуться к заданию из 5 ЛР](#back2)
 
 ---
@@ -371,32 +372,16 @@ __Что важно помнить!__
 
 | Ссылка на функциональное требование | Запись, агрегаты | Название команды и ее параметры | Событие(я), создаваемые командой | Используются ли данные в запросах на чтение |
 |-|-|-|-|-|
-| [2](#фт2) | User: никнейм, имя и пароль  | createUser(id, nickname, name, password) | UserCreatedEvent | Да (поиск пользвателей)
+| [2](#фт2) | User: никнейм, имя и пароль  | createUser(id, nickname, name, password) | UserCreatedEvent | Да (поиск пользвателей) |
 | [6](#фт6) | Project: название | createProject(id, title, creatorId) | ProjectCreatedEvent | Да (список проектов) |
-| [7](#фт7) | Project: ID проекта, user | addUserToProject(projectId, userId) | UserAddedToProjectEvent | Да(когда отображаем информацию о проекте)
+| [7](#фт7) | Project: ID проекта, user | addUserToProject(projectId, userId) | UserAddedToProjectEvent | Да(когда отображаем информацию о проекте) |
 | [9](#фт9) | Task: название задачи, ID проекта, user-автор, статус, user-исполнители, сроки выполнения, приоритет, описание | createTask(id, title, creatorId, status, doersID, deadlines, priority, description) | TaskCreatedEvent | Да (список задач) |
 | [10](#фт10) | Task: название задачи, ID проекта, user-редактор, сроки выполнения, приоритет, описание | updateTask(id, title, creatorId, deadlines, priority, description) | TaskContentUpdatedEvent | Да (список задач, история изменения) |
 | [11](#фт11) | Task: ID задачи, ID пользователя| addUserToTask(taskId, userId) | UserAddedToTaskEvent | Да(когда отображаем информацию о задаче, история изменения)
 | [12](#фт12) | Task: ID задачи, новый статус | updateTask(id, status) | TaskStatusUpdatedEvent | Да (список задач, история изменения) |
 | [13](#фт13) | Task: ID задачи | deleteTask(id, deleterId) | TaskDeletedEvent | Да (история изменения)
-| [14](#фт14) | Project: List\<String\> | createProjectStatus(id, statusNameAndColor)
-| [15](#фт15) | Project: List\<String\> |
-| [16](#фт16) | Project: List\<String\> |
+| [14](#фт14) | Project: List\<String\> | createProjectStatus(id, statusNameAndColor) | ProjectStatusAddedEvent | Да(отображение статусов)
+| [15](#фт15) | Project: List\<String\> | updateProjectStatus(id, statusNameAndColor) | ProjectStatusUpdateEvent | Да(отображение статусов)
+| [16](#фт16) | Project: List\<String\> | updateProjectStatus(id, statusNameAndColor) | ProjectStatusUpdateEvent | Да(отображение статусов)
 
-## Дополнительные функциональные требования
-
-Внесите изменения в документацию, необходимость которых была выявлена на последнем этапе. Примеры приведены ниже.
-
-После анализа таблиц операций чтения и записи данных выявлено, что нет операций чтения, предусматривающих …
-
-Последний use case необходим пользователю, чтобы …
-
-Предлагается дополнить функциональные требования следующими:
-
-Пользователь должен иметь возможность …
-
-Пользователь должен иметь возможность …
-
-Пользователь должен иметь возможность получить …
-
-Ниже представлена дополненная таблица операций чтения:
+> Комментарий к последней строчке: при удалении статусов прокта, пользователь не может удалить все статусы полностью (__хотя бы один__ должен остаться), получается пользователь обновляет статусы, когда удаляет их.
