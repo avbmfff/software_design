@@ -10,14 +10,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnector {
-    private static final String URL = "jdbc:postgresql://localhost:5432/mydatabase";
-    private static final String USER = "your_username";
-    private static final String PASSWORD = "your_password";
+    private static final String URL = "jdbc:postgresql://dpg-csl81e3qf0us73c42em0-a.oregon-postgres.render.com:5432/bdppo";
+    private static final String USER = "bdppo_user";
+    private static final String PASSWORD = "RJLYbpECa0Rzcv076vQX7wxJmtzvVuDX";
 
-    private static UserRepository userRepository;
-    private static ProjectRepository projectRepository;
-    private static TaskRepository taskRepository;
-    private static ChangelogRepository changelogRepository;
+    private UserRepository userRepository;
+    private ProjectRepository projectRepository;
+    private TaskRepository taskRepository;
+    private ChangelogRepository changelogRepository;
 
     public DatabaseConnector(){
         userRepository = new UserRepository();
@@ -29,19 +29,19 @@ public class DatabaseConnector {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    public static UserRepository getUserRepository() {
-        return userRepository;
+    public UserRepository getUserRepository() {
+        return this.userRepository;
     }
 
-    public static ProjectRepository getProjectRepository() {
-        return projectRepository;
+    public ProjectRepository getProjectRepository() {
+        return this.projectRepository;
     }
 
-    public static TaskRepository getTaskRepository() {
-        return taskRepository;
+    public TaskRepository getTaskRepository() {
+        return this.taskRepository;
     }
 
-    public static ChangelogRepository getChangelogRepository() {
-        return changelogRepository;
+    public ChangelogRepository getChangelogRepository() {
+        return this.changelogRepository;
     }
 }

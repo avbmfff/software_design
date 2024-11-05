@@ -13,7 +13,7 @@ public class UserRepository {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
-        String query = "SELECT id, name, nickname, password FROM users";
+        String query = "SELECT id,name,nickname,password FROM users";
 
         try (Connection conn = DatabaseConnector.getConnection();
              Statement stmt = conn.createStatement();

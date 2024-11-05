@@ -7,10 +7,11 @@ public class Main {
     public static void main(String[] args) {
         //todo: load data from database(users,projects)
         TaskTrackerService taskTrackerService = new TaskTrackerService();
-        taskTrackerService.users = DatabaseConnector.getUserRepository().getAllUsers();
-        taskTrackerService.projects = DatabaseConnector.getProjectRepository().getAllProjects();
-        taskTrackerService.tasks = DatabaseConnector.getTaskRepository().getAllTasks();
-        taskTrackerService.changeLogs = DatabaseConnector.getChangelogRepository().getAllChangeLogs();
+        DatabaseConnector databaseConnector = new DatabaseConnector();
+        taskTrackerService.users = databaseConnector.getUserRepository().getAllUsers();
+        //taskTrackerService.projects = databaseConnector.getProjectRepository().getAllProjects();
+        //taskTrackerService.tasks = databaseConnector.getTaskRepository().getAllTasks();
+        //taskTrackerService.changeLogs = databaseConnector.getChangelogRepository().getAllChangeLogs();
 
         for (User user : taskTrackerService.users) {
             System.out.println("ID: " + user.getId() +
