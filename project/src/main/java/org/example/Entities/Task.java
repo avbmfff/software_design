@@ -13,6 +13,20 @@ public class Task {
     private Date dedicatedTime; //сроки выполнения задачи
     private String priority; //приоритет задачи
     private String description; //описание задачи
+    private List<Integer> changelogsIds; //список логов изменения задачи
+
+    //конструктор для выгрузки данных из БД
+    public Task(int id, String title, String status, int authorId, List<Integer> workersIds, Date dedicatedTime, String priority, String description, List<Integer> changelogsIds) {
+        this.id = id;
+        this.title = title;
+        this.status = status;
+        this.authorId = authorId;
+        this.workersIds = workersIds;
+        this.dedicatedTime = dedicatedTime;
+        this.priority = priority;
+        this.description = description;
+        this.changelogsIds = changelogsIds;
+    }
 
     //создание задачи
     public Task(int id,String title,String status,int authorId,Date dedicatedTime,String priority,String description) {
@@ -72,9 +86,7 @@ public class Task {
         return description;
     }
 
-    public List<ChangeLog> getChangelogsIds() {
+    public List<Integer> getChangelogsIds() {
         return changelogsIds;
     }
-
-    private List<ChangeLog> changelogsIds; //список логов изменения задачи
 }

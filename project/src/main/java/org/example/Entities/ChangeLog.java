@@ -9,7 +9,16 @@ public class ChangeLog {
     private int workTime; //потраченное на внесение изменений время
     private String changedAttributes; //измененные атрибуты
 
-    public ChangeLog(int id, int workerId, int workTime,String changedAttributes){
+    //конструктор для выгрузки данных из БД
+    public ChangeLog(int id, int workerId, Date changeTime, int workTime, String changedAttributes) {
+        this.id = id;
+        this.workerId = workerId;
+        this.changeTime = changeTime;
+        this.workTime = workTime;
+        this.changedAttributes = changedAttributes;
+    }
+
+    public ChangeLog(int id, int workerId, int workTime, String changedAttributes){
         this.id = id;
         this.workerId = workerId;
         this.changeTime = new Date();
@@ -36,4 +45,5 @@ public class ChangeLog {
     public int getId() {
         return id;
     }
+
 }

@@ -15,8 +15,22 @@ public class Project {
     private List<Integer> tasksIds; //список задач в проекте
     private List<String> taskStatusesIds; //пул возможных статусов для задач в данном проекте
     private String defaultStatus; //стандартный(дефолтный) статус для задач в проекте
-    private List<ChangeLog> changelogsIds; //логи изменений в проекте
+    private List<Integer> changelogsIds; //логи изменений в проекте
 
+    //конструктор для выгрузки данных из БД
+    public Project(int id, String title, String description, int authorId, Date startDate, Date endDate, List<Integer> workersIds, List<Integer> tasksIds, List<String> taskStatusesIds, String defaultStatus, List<Integer> changelogsIds) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.authorId = authorId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.workersIds = workersIds;
+        this.tasksIds = tasksIds;
+        this.taskStatusesIds = taskStatusesIds;
+        this.defaultStatus = defaultStatus;
+        this.changelogsIds = changelogsIds;
+    }
 
     //создание проекта
     public Project(int id,String title, int authorId) {
@@ -96,7 +110,9 @@ public class Project {
         return this.taskStatusesIds;
     }
 
-    public List<ChangeLog> getChangelogs() {
+    public List<Integer> getChangelogsIds() {
         return this.changelogsIds;
     }
+
+    public String getDefaultStatus() { return this.defaultStatus; }
 }

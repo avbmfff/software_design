@@ -1,6 +1,8 @@
 package org.example.Services;
 
+import org.example.Entities.ChangeLog;
 import org.example.Entities.Project;
+import org.example.Entities.Task;
 import org.example.Entities.User;
 
 import java.util.ArrayList;
@@ -9,14 +11,13 @@ import java.util.List;
 public class TaskTrackerService {
     List<User> users;
     List<Project> projects;
+    List<Task> tasks;
+    List<ChangeLog> changeLogs;
     LoggingService loggingService;
 
-    public static void main(String[] args) {
-        //todo: load data from database(users,projects)
-        TaskTrackerService taskTrackerService = new TaskTrackerService();
-        taskTrackerService.loggingService = new LoggingService();
-        taskTrackerService.users = new ArrayList<>();
-        taskTrackerService.projects = new ArrayList<>();
+    public TaskTrackerService() {
+        this.users = new ArrayList<>();
+        this.projects = new ArrayList<>();
+        this.loggingService = new LoggingService();
     }
-
 }
