@@ -1,7 +1,7 @@
-package Services;
+package org.example.Services;
 
-import entities.Project;
-import entities.User;
+import org.example.Entities.Project;
+import org.example.Entities.User;
 
 import java.util.ArrayList;
 import java.util.List;
