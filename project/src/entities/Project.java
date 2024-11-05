@@ -14,8 +14,11 @@ public class Project {
     private List<Integer> workersIds; //список работников в проекте
     private List<Integer> tasksIds; //список задач в проекте
     private List<String> taskStatusesIds; //пул возможных статусов для задач в данном проекте
+    private String defaultStatus; //стандартный(дефолтный) статус для задач в проекте
     private List<ChangeLog> changelogsIds; //логи изменений в проекте
 
+
+    //создание проекта
     public Project(int id,String title, int authorId) {
         this.id = id;
         this.title = title;
@@ -27,8 +30,10 @@ public class Project {
         this.tasksIds = new ArrayList<>();
         this.taskStatusesIds = new ArrayList<>();
         this.changelogsIds = new ArrayList<>();
+        this.defaultStatus = "В процессе"; //todo: add hex color description in beginning
     }
 
+    //добавление пользователя в проект
     public void addUserToProject(int userId){
         if(!workersIds.contains(userId)){
             workersIds.add(userId);
@@ -38,6 +43,7 @@ public class Project {
         }
     }
 
+    //добавление нового статуса в пул
     public void createNewStatus(String status){
         //todo: add status string to statuses pool
         if(!taskStatusesIds.contains(status)){
@@ -45,8 +51,13 @@ public class Project {
         }
     }
 
-    public void updateProjectStatus(String status){
+    //удаление статуса из пула
+    public void deleteProjectStatus(String status){
         //todo: parse status string
+        taskStatusesIds.remove(status);
+        if(taskStatusesIds.isEmpty()){
+            taskStatusesIds.add(this.defaultStatus);
+        }
     }
 
     public int getId() {
