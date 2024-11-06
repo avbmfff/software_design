@@ -1,8 +1,14 @@
 package org.example.Entities;
 
+import jakarta.persistence.*;
+
 import java.util.Date;
 
+@Entity
+@Table(name = "changelogs")
 public class ChangeLog {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id; //идентификатор записи
     private int workerId; //работник,совершивший залогированное изменение
     private Date changeTime; //время публикации изменения(создания лога)
@@ -25,6 +31,8 @@ public class ChangeLog {
         this.workTime = workTime;
         this.changedAttributes = changedAttributes;
     }
+
+    public ChangeLog() {}
 
     public String getChangedAttributes() {
         return changedAttributes;

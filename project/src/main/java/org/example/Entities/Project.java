@@ -1,24 +1,30 @@
 package org.example.Entities;
 
-import java.util.ArrayList;
+import jakarta.persistence.*;
+
 import java.util.Date;
-import java.util.List;
 
+@Entity
+@Table(name = "projects")
 public class Project {
-    private int id; //идентификатор проекта
-    private String title; //название проекта
-    private String description; //описание проекта
-    private int authorId; //идентификатор создателя проекта
-    private Date startDate; //дата начала(создания) проекта
-    private Date endDate; //дата окончания проекта
-    private List<Integer> workersIds; //список работников в проекте
-    private List<Integer> tasksIds; //список задач в проекте
-    private List<String> taskStatusesIds; //пул возможных статусов для задач в данном проекте
-    private String defaultStatus; //стандартный(дефолтный) статус для задач в проекте
-    private List<Integer> changelogsIds; //логи изменений в проекте
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id; // идентификатор проекта
+    private String title; // название проекта
+    private String description; // описание проекта
+    private int authorId; // идентификатор создателя проекта
+    private Date startDate; // дата начала(создания) проекта
+    private Date endDate; // дата окончания проекта
+    private Integer[] workersIds; // массив идентификаторов работников в проекте
+    private Integer[] tasksIds; // массив идентификаторов задач в проекте
+    private String[] taskStatusesIds; // пул возможных статусов для задач в данном проекте
+    private String defaultStatus; // стандартный(дефолтный) статус для задач в проекте
+    private Integer[] changelogsIds; // массив логов изменений в проекте
 
-    //конструктор для выгрузки данных из БД
-    public Project(int id, String title, String description, int authorId, Date startDate, Date endDate, List<Integer> workersIds, List<Integer> tasksIds, List<String> taskStatusesIds, String defaultStatus, List<Integer> changelogsIds) {
+    // конструктор для выгрузки данных из БД
+    public Project(int id, String title, String description, int authorId, Date startDate, Date endDate,
+                   Integer[] workersIds, Integer[] tasksIds, String[] taskStatusesIds, String defaultStatus,
+                   Integer[] changelogsIds) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -32,46 +38,66 @@ public class Project {
         this.changelogsIds = changelogsIds;
     }
 
-    //создание проекта
-    public Project(int id,String title, int authorId) {
+    // создание проекта
+    public Project(int id, String title, int authorId) {
         this.id = id;
         this.title = title;
         this.description = "";
         this.authorId = authorId;
         this.startDate = new Date();
         this.endDate = null;
-        this.workersIds = new ArrayList<>();
-        this.tasksIds = new ArrayList<>();
-        this.taskStatusesIds = new ArrayList<>();
-        this.changelogsIds = new ArrayList<>();
-        this.defaultStatus = "В процессе"; //todo: add hex color description in beginning
+        this.workersIds = new Integer[0]; // инициализация пустым массивом
+        this.tasksIds = new Integer[0]; // инициализация пустым массивом
+        this.taskStatusesIds = new String[0]; // инициализация пустым массивом
+        this.changelogsIds = new Integer[0]; // инициализация пустым массивом
+        this.defaultStatus = "В процессе"; // дефолтный статус
     }
 
-    //добавление пользователя в проект
-    public void addUserToProject(int userId){
-        if(!workersIds.contains(userId)){
-            workersIds.add(userId);
-        }
-        else{
-            System.out.println("Worker is already in project");
+    // пустой конструктор для JPA
+    public Project() {}
+
+    // добавление пользователя в проект
+    public void addUserToProject(int userId) {
+        // преобразуем workersIds в список, добавляем новый работник, а затем возвращаем массив
+        Integer[] newArray = new Integer[workersIds.length + 1];
+        System.arraycopy(workersIds, 0, newArray, 0, workersIds.length);
+        newArray[workersIds.length] = userId;
+        workersIds = newArray;
+    }
+
+    // добавление нового статуса в пул
+    public void createNewStatus(String status) {
+        if (!contains(taskStatusesIds, status)) {
+            String[] newArray = new String[taskStatusesIds.length + 1];
+            System.arraycopy(taskStatusesIds, 0, newArray, 0, taskStatusesIds.length);
+            newArray[taskStatusesIds.length] = status;
+            taskStatusesIds = newArray;
         }
     }
 
-    //добавление нового статуса в пул
-    public void createNewStatus(String status){
-        //todo: add status string to statuses pool
-        if(!taskStatusesIds.contains(status)){
-            taskStatusesIds.add(status);
+    // удаление статуса из пула
+    public void deleteProjectStatus(String status) {
+        String[] newArray = new String[taskStatusesIds.length - 1];
+        int index = 0;
+        for (String currentStatus : taskStatusesIds) {
+            if (!currentStatus.equals(status)) {
+                newArray[index++] = currentStatus;
+            }
         }
+        if (newArray.length == 0) {
+            newArray = new String[]{this.defaultStatus}; // если все статусы удалены, добавляем дефолтный
+        }
+        taskStatusesIds = newArray;
     }
 
-    //удаление статуса из пула
-    public void deleteProjectStatus(String status){
-        //todo: parse status string
-        taskStatusesIds.remove(status);
-        if(taskStatusesIds.isEmpty()){
-            taskStatusesIds.add(this.defaultStatus);
+    // утилитный метод для проверки наличия статуса
+    private boolean contains(String[] array, String value) {
+        for (String s : array) {
+            if (s.equals(value)) {
+                return true;
+            }
         }
+        return false;
     }
 
     public int getId() {
@@ -98,21 +124,23 @@ public class Project {
         return this.endDate;
     }
 
-    public List<Integer> getWorkersIds() {
+    public Integer[] getWorkersIds() {
         return this.workersIds;
     }
 
-    public List<Integer> getTasksIds() {
+    public Integer[] getTasksIds() {
         return this.tasksIds;
     }
 
-    public List<String> getTaskStatuses() {
+    public String[] getTaskStatuses() {
         return this.taskStatusesIds;
     }
 
-    public List<Integer> getChangelogsIds() {
+    public Integer[] getChangelogsIds() {
         return this.changelogsIds;
     }
 
-    public String getDefaultStatus() { return this.defaultStatus; }
+    public String getDefaultStatus() {
+        return this.defaultStatus;
+    }
 }

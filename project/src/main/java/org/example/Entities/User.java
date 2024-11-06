@@ -1,6 +1,12 @@
 package org.example.Entities;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id; //идентификатор пользователя
     private String name; //имя пользователя
     private String nickname; //псевдоним пользователя
@@ -12,6 +18,16 @@ public class User {
         this.name = name;
         this.nickname = nickname;
         this.password = password;
+    }
+
+    public User(String name, String nickname,String password){
+        this.name = name;
+        this.nickname = nickname;
+        this.password = password;
+    }
+
+    public User() {
+
     }
 
     public int getId() {
