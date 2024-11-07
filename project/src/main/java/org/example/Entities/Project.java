@@ -39,18 +39,18 @@ public class Project {
     }
 
     // создание проекта
-    public Project(int id, String title, int authorId) {
+    public Project(int id, int authorId, String title, String description, Date startDate, Date endDate, String defaultStatus) {
         this.id = id;
         this.title = title;
-        this.description = "";
+        this.description = description;
         this.authorId = authorId;
-        this.startDate = new Date();
-        this.endDate = null;
+        this.startDate = startDate;
+        this.endDate =  endDate;
         this.workersIds = new Integer[0]; // инициализация пустым массивом
         this.tasksIds = new Integer[0]; // инициализация пустым массивом
         this.taskStatusesIds = new String[0]; // инициализация пустым массивом
         this.changelogsIds = new Integer[0]; // инициализация пустым массивом
-        this.defaultStatus = "В процессе"; // дефолтный статус
+        this.defaultStatus = defaultStatus; // дефолтный статус
     }
 
     // пустой конструктор для JPA

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="profile_style.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div id="user-info">
+    <h2 id="user-name"></h2>
+    <p id="user-nickname"></p>
+  </div>
+  <h3>Projects</h3>
+  <ul id="project-list" class="project-list">
+    <!-- Список проектов будет загружаться сюда -->
+  </ul>
+</div>
+<div class="content">
+  <h3 id="project-info-title">
+    Select a project
+    <span id="create-project-button" onclick="openCreateProjectModal()">or Create Project</span>
+  </h3>
+  <div id="project-details" class="project-details">
+    <!-- Информация о проекте будет отображаться здесь -->
+  </div>
+</div>
+
+<!-- Модальное окно для подтверждения выхода -->
+<div id="logout-modal" class="modal">
+  <div class="modal-content">
+    <p>Выйти из аккаунта?</p>
+    <div class="modal-buttons">
+      <button class="modal-button modal-button-yes" onclick="logout()">Да</button>
+      <button class="modal-button modal-button-no" onclick="closeModal()">Нет</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для создания проекта -->
+<div id="create-project-modal" class="modal">
+  <div class="modal-content">
+    <h4>Create Project</h4>
+    <form id="create-project-form">
+      <label for="project-name">Project Name:</label>
+      <input type="text" id="project-name" required><br><br>
+
+      <label for="project-description">Project Description:</label>
+      <textarea id="project-description" required></textarea><br><br>
+
+      <label for="start-date">Start Date:</label>
+      <input type="date" id="start-date" required><br><br>
+
+      <label for="end-date">End Date:</label>
+      <input type="date" id="end-date" required><br><br>
+
+      <label for="task-status">Task Default Status:</label>
+      <input type="text" id="task-status" required><br><br>
+
+      <button type="submit" onclick="submitProjectForm(event)">Create</button>
+      <button type="button" onclick="closeCreateProjectModal()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<script src="profile_script.js"></script>
+</body>
+</html>

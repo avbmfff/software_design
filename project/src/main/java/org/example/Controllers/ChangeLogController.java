@@ -18,28 +18,28 @@ public class ChangeLogController {
     private ChangeLogService changeLogService;
 
     // Получение всех логов изменений
-    @GetMapping
+    @GetMapping("/getAll")
     public List<ChangeLog> getAllChangeLogs() {
         return changeLogService.getAllChangeLogs();
     }
 
     // Получение лога изменений по ID
-    @GetMapping("/{id}")
-    public ResponseEntity<ChangeLog> getChangeLogById(@PathVariable int id) {
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<ChangeLog> getChangeLogById(@PathVariable("id") int id) {
         Optional<ChangeLog> changeLog = changeLogService.getChangeLogById(id);
         return changeLog.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // Добавление нового лога изменения
-    @PostMapping
+    @PostMapping("/addChangeLog")
     public ResponseEntity<ChangeLog> addChangeLog(@RequestBody ChangeLog changeLog) {
         ChangeLog createdChangeLog = changeLogService.addChangeLog(changeLog);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChangeLog);
     }
 
     // Обновление лога изменения
-    @PutMapping("/{id}")
-    public ResponseEntity<ChangeLog> updateChangeLog(@PathVariable int id, @RequestBody ChangeLog changeLog) {
+    @PutMapping("/updateChangeLog/{id}")
+    public ResponseEntity<ChangeLog> updateChangeLog(@PathVariable("id") int id, @RequestBody ChangeLog changeLog) {
         if (changeLog.getId() != id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -48,8 +48,8 @@ public class ChangeLogController {
     }
 
     // Удаление лога изменения
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChangeLogById(@PathVariable int id) {
+    @DeleteMapping("/deleteChangeLog/{id}")
+    public ResponseEntity<Void> deleteChangeLogById(@PathVariable("id") int id) {
         changeLogService.deleteChangeLogById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
