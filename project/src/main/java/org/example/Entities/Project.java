@@ -17,13 +17,13 @@ public class Project {
     private Date endDate; // дата окончания проекта
     private Integer[] workersIds; // массив идентификаторов работников в проекте
     private Integer[] tasksIds; // массив идентификаторов задач в проекте
-    private String[] taskStatusesIds; // пул возможных статусов для задач в данном проекте
+    private String[] taskStatuses; // пул возможных статусов для задач в данном проекте
     private String defaultStatus; // стандартный(дефолтный) статус для задач в проекте
     private Integer[] changelogsIds; // массив логов изменений в проекте
 
     // конструктор для выгрузки данных из БД
     public Project(int id, String title, String description, int authorId, Date startDate, Date endDate,
-                   Integer[] workersIds, Integer[] tasksIds, String[] taskStatusesIds, String defaultStatus,
+                   Integer[] workersIds, Integer[] tasksIds, String[] taskStatuses, String defaultStatus,
                    Integer[] changelogsIds) {
         this.id = id;
         this.title = title;
@@ -33,7 +33,7 @@ public class Project {
         this.endDate = endDate;
         this.workersIds = workersIds;
         this.tasksIds = tasksIds;
-        this.taskStatusesIds = taskStatusesIds;
+        this.taskStatuses = taskStatuses;
         this.defaultStatus = defaultStatus;
         this.changelogsIds = changelogsIds;
     }
@@ -48,7 +48,7 @@ public class Project {
         this.endDate =  endDate;
         this.workersIds = new Integer[0]; // инициализация пустым массивом
         this.tasksIds = new Integer[0]; // инициализация пустым массивом
-        this.taskStatusesIds = new String[0]; // инициализация пустым массивом
+        this.taskStatuses = new String[0]; // инициализация пустым массивом
         this.changelogsIds = new Integer[0]; // инициализация пустым массивом
         this.defaultStatus = defaultStatus; // дефолтный статус
     }
@@ -67,19 +67,19 @@ public class Project {
 
     // добавление нового статуса в пул
     public void createNewStatus(String status) {
-        if (!contains(taskStatusesIds, status)) {
-            String[] newArray = new String[taskStatusesIds.length + 1];
-            System.arraycopy(taskStatusesIds, 0, newArray, 0, taskStatusesIds.length);
-            newArray[taskStatusesIds.length] = status;
-            taskStatusesIds = newArray;
+        if (!contains(taskStatuses, status)) {
+            String[] newArray = new String[taskStatuses.length + 1];
+            System.arraycopy(taskStatuses, 0, newArray, 0, taskStatuses.length);
+            newArray[taskStatuses.length] = status;
+            taskStatuses = newArray;
         }
     }
 
     // удаление статуса из пула
     public void deleteProjectStatus(String status) {
-        String[] newArray = new String[taskStatusesIds.length - 1];
+        String[] newArray = new String[taskStatuses.length - 1];
         int index = 0;
-        for (String currentStatus : taskStatusesIds) {
+        for (String currentStatus : taskStatuses) {
             if (!currentStatus.equals(status)) {
                 newArray[index++] = currentStatus;
             }
@@ -87,7 +87,7 @@ public class Project {
         if (newArray.length == 0) {
             newArray = new String[]{this.defaultStatus}; // если все статусы удалены, добавляем дефолтный
         }
-        taskStatusesIds = newArray;
+        taskStatuses = newArray;
     }
 
     // утилитный метод для проверки наличия статуса
@@ -133,7 +133,7 @@ public class Project {
     }
 
     public String[] getTaskStatuses() {
-        return this.taskStatusesIds;
+        return this.taskStatuses;
     }
 
     public Integer[] getChangelogsIds() {

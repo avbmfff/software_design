@@ -102,3 +102,30 @@ body {
 #create-project-button:hover {
     color: #0056b3;
 }
+
+#view-tasks-btn {
+    float: right;
+    padding: 8px 12px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#view-tasks-btn:hover {
+    background-color: #0056b3;
+}
+
+#task-list {
+    margin-top: 15px;
+}
+
+.task-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}

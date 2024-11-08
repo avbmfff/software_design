@@ -33,6 +33,7 @@ public class ProjectController {
     // Добавление нового проекта
     @PostMapping("/addProject")
     public ResponseEntity<Project> addProject(@RequestBody ProjectDTO projectDTO) {
+        System.out.println(projectService.getAllProjects().size());
         Project project = new Project(
                 projectService.getAllProjects().size()+1,
                 projectDTO.getAuthorId(),
@@ -77,5 +78,4 @@ public class ProjectController {
         }
         return projects;
     }
-
 }

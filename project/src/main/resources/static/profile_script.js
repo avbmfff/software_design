@@ -4,7 +4,7 @@ const user = JSON.parse(sessionStorage.getItem('user'));
 // Проверяем, есть ли данные о пользователе в sessionStorage
 if (!user) {
     alert('Please login first!');
-    window.location.href = '/login.html'; // Переходим на страницу логина, если данных нет
+    window.location.href = '/index.html'; // Переходим на страницу логина, если данных нет
 } else {
     // Отображаем имя и никнейм пользователя
     document.getElementById('user-name').textContent = user.name;
@@ -36,6 +36,9 @@ function loadProjects(userId) {
 
 // Функция для отображения подробностей проекта
 function showProjectDetails(projectId) {
+    const taskListContainer = document.getElementById('task-list');
+    taskListContainer.innerHTML = '';
+    taskListContainer.style.display = 'none';
     fetch(`/projects/getById/${projectId}`)
         .then(response => response.json())
         .then(project => {
@@ -47,9 +50,10 @@ function showProjectDetails(projectId) {
         <p>${project.description}</p>
         <h4>Start Date</h4>
         <p>${project.startDate}</p>
-        <h4>Status</h4>
-        <p>${project.status}</p>
       `;
+            sessionStorage.setItem("currentProjectId", projectId);
+            document.getElementById('view-tasks-btn').style.display = 'inline';
+            document.getElementById('view-tasks-btn').setAttribute('data-project-id', projectId);
         })
         .catch(error => {
             console.error('Error loading project details:', error);
@@ -61,7 +65,10 @@ function showProjectDetails(projectId) {
 function closeProjectDetails() {
     const projectDetails = document.getElementById('project-details');
     projectDetails.innerHTML = ''; // Очищаем содержимое для "закрытия" окна
-    document.getElementById('project-info-title').textContent = 'Select a project or Create Project'; // Сбрасываем заголовок
+    document.getElementById('task-list').style.display = 'none';
+    document.getElementById('view-tasks-btn').style.display = 'none';
+    const projectInfoTitle = document.getElementById('project-info-title');
+    projectInfoTitle.innerHTML = 'Select a project or<span id="create-project-button" onclick="openCreateProjectModal()">Create Project</span>';
 }
 
 // Функция для открытия модального окна создания проекта
@@ -92,11 +99,12 @@ function submitProjectForm(event) {
         description: projectDescription,
         startDate: startDate,
         endDate: endDate,
-        taskStatus: taskStatus
+        taskStatus: taskStatus,
+        taskStatuses: [taskStatus]
     };
 
     // Выводим объект в консоль (для проверки)
-    //console.log('Project Created:', newProject);
+    console.log('Project Created:', newProject);
 
     fetch("/projects/addProject", {
         method: 'POST', // Метод запроса
@@ -109,14 +117,13 @@ function submitProjectForm(event) {
             throw new Error('Failed to create project');
         }
         return response.json(); // Возвращаем ответ в формате JSON
+    }).then(data => {
+        alert('Project added successfully!');
+        window.location.reload();
     })
-        .then(data => {
-            alert('Project added successfully!');
-        })
 
     // Закрываем модальное окно
     closeCreateProjectModal();
-    window.location.reload();
     // Очищаем поля формы
     document.getElementById('create-project-form').reset();
 }
@@ -135,4 +142,243 @@ function closeModal() {
 function logout() {
     sessionStorage.clear();
     window.location.href = '/index.html';
+}
+
+// Функция для загрузки задач проекта
+function loadProjectTasks() {
+    const projectId = JSON.parse(sessionStorage.getItem("currentProjectId"));
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load project details');
+            }
+            return response.json();
+        })
+        .then(project => {
+            const taskIds = project.tasksIds; // Предполагается, что это массив ID задач
+            const taskPromises = taskIds.map(taskId => fetch(`/tasks/getById/${taskId}`).then(res => res.json()));
+            // Загружаем все задачи параллельно и отрисовываем их
+            Promise.all(taskPromises)
+                .then(tasks => {
+                    const taskListContainer = document.getElementById('task-list');
+                    taskListContainer.style.display = 'block';
+                    taskListContainer.innerHTML = ''; // Очищаем список перед добавлением
+
+                    tasks.forEach(task => {
+                        const taskItem = document.createElement('div');
+                        taskItem.classList.add('task-item');
+                        taskItem.textContent = `Task: ${task.title} - Status: ${task.status}`;
+                        taskItem.addEventListener('click', () => showTaskDetails(task.id));
+                        taskListContainer.appendChild(taskItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading tasks:', error);
+                    alert('Failed to load tasks');
+                });
+        })
+        .catch(error => {
+            console.error('Error loading project details:', error);
+            alert('Failed to load project details');
+        });
+}
+
+// Функция для отображения информации о задаче
+function showTaskDetails(taskId) {
+    fetch(`/tasks/getById/${taskId}`)
+        .then(response => response.json())
+        .then(async task => {
+            document.getElementById('task-title').textContent = task.name;
+            const taskDetails = document.getElementById('task-details');
+            const workerNicknames = await Promise.all(task.workersIds.map(workerId => fetchWorkerNickname(workerId)));
+
+            taskDetails.innerHTML = `
+        <h4>Description</h4>
+        <p>${task.description}</p>
+        <h4>Assigned Workers</h4>
+        <ul>
+          ${workerNicknames.map(nickname => `<li>${nickname}</li>`).join('')}
+        </ul>
+      `;
+
+            loadProjectStatuses(JSON.parse(sessionStorage.getItem("currentProjectId")), task.status, task.id);
+
+            document.getElementById('task-info-modal').style.display = 'flex';
+        })
+        .catch(error => {
+            console.error('Error loading task details:', error);
+            alert('Failed to load task details');
+        });
+}
+
+// Функция для закрытия модального окна
+function closeTaskInfoModal() {
+    document.getElementById('task-info-modal').style.display = 'none';
+}
+
+// Функция для получения никнейма пользователя по workerId
+function fetchWorkerNickname(workerId) {
+    return fetch(`/users/getById/${workerId}`)
+        .then(response => response.json())
+        .then(user => user.nickname)
+        .catch(error => {
+            console.error(`Error loading nickname for worker ${workerId}:`, error);
+            return 'Unknown'; // В случае ошибки добавляем 'Unknown'
+        });
+}
+
+// Функция для загрузки и отображения статусов проекта в выпадающем списке
+function loadProjectStatuses(projectId, currentStatus, taskId) {
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => response.json())
+        .then(project => {
+            const statusSelect = document.getElementById('task-status-select');
+            statusSelect.innerHTML = ''; // Очищаем список статусов
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = project.defaultStatus;
+            defaultOption.textContent = defaultOption.value;
+            statusSelect.appendChild(defaultOption);
+            project.taskStatuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                if (status === currentStatus) option.selected = true;
+                statusSelect.appendChild(option);
+            });
+
+            // Добавляем обработчик изменения статуса
+            statusSelect.addEventListener('change', () => updateTaskStatus(taskId, statusSelect.value));
+        })
+        .catch(error => {
+            console.error('Error loading project statuses:', error);
+            alert('Failed to load statuses');
+        });
+}
+
+// Функция для обновления статуса задачи
+function updateTaskStatus(taskId, newStatus) {
+    // Сначала получаем текущие данные задачи
+    fetch(`/tasks/getById/${taskId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch task details');
+            return response.json();
+        })
+        .then(task => {
+            // Обновляем поле status на newStatus
+            const updatedTask = {...task, status: newStatus};
+
+            // Отправляем обновленные данные задачи на сервер
+            return fetch(`/tasks/updateTask/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedTask)
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update task');
+            alert('Task status updated successfully!');
+            loadProjectTasks();
+        })
+        .catch(error => {
+            console.error('Error updating task status:', error);
+            alert('Failed to update task status');
+        });
+}
+
+// Функция для открытия модального окна создания задачи
+function openCreateTaskModal() {
+    const createTaskModal = document.getElementById('create-task-modal');
+    createTaskModal.style.display = 'flex';
+}
+
+// Функция для закрытия модального окна создания задачи
+function closeCreateTaskModal() {
+    const createTaskModal = document.getElementById('create-task-modal');
+    createTaskModal.style.display = 'none';
+}
+
+// Обработчик для формы создания новой задачи
+document.getElementById('create-task-form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Отменяем стандартное поведение формы
+
+    // Получаем данные из формы
+    const taskName = document.getElementById('task-name').value;
+    const taskDescription = document.getElementById('task-description').value;
+
+    // Получаем ID проекта, с которым связан пользователь
+    const projectId = JSON.parse(sessionStorage.getItem("currentProjectId")); // Предполагается, что ID проекта передается в элемент
+
+    // Создаем задачу
+    createTask(projectId, taskName, taskDescription);
+});
+
+// Функция для создания новой задачи
+function createTask(projectId, taskName, taskDescription) {
+    // Получаем стандартный статус проекта через запрос
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch project details');
+            return response.json();
+        })
+        .then(project => {
+            // Извлекаем defaultStatus из проекта
+            const defaultStatus = project.defaultStatus;
+
+            // Создаем задачу с этим статусом
+            const newTask = {
+                title: taskName,
+                authorId: JSON.parse(sessionStorage.getItem("user")).id,
+                dedicatedTime: null,
+                priority: "default",
+                description: taskDescription,
+                projectId: projectId,
+                workersIds: [JSON.parse(sessionStorage.getItem("user")).id],  // Здесь можно добавить логику для выбора работников
+                status: defaultStatus,  // Устанавливаем статус как defaultStatus проекта
+                changeLogsIds: []
+            };
+
+            // Отправляем новую задачу на сервер
+            return fetch('/tasks/addTask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newTask)
+            });
+        })
+        .then(async response => {
+            const taskId = (await response.json()).id;
+            if (!response.ok) throw new Error('Failed to create task');
+            // После создания задачи, обновляем проект
+            // Получаем проект и добавляем ID новой задачи в tasksIds
+            return fetch(`/projects/getById/${projectId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch project details for update');
+                    return response.json();
+                })
+                .then(project => {
+                    // Добавляем новый taskId в список tasksIds проекта
+                    project.tasksIds.push(taskId);  // Добавляем ID новой задачи в tasksIds
+
+                    // Обновляем проект, отправляя его на сервер
+                    return fetch(`/projects/updateProject/${projectId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(project)
+                    });
+                });
+        })
+        .then(() => {
+            alert('Task created successfully!');
+            closeCreateTaskModal();  // Закрываем окно создания задачи
+        })
+        .catch(error => {
+            console.error('Error creating task:', error);
+            alert('Failed to create task');
+        });
 }
