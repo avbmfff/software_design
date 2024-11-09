@@ -54,6 +54,9 @@ function showProjectDetails(projectId) {
             sessionStorage.setItem("currentProjectId", projectId);
             document.getElementById('view-tasks-btn').style.display = 'inline';
             document.getElementById('view-tasks-btn').setAttribute('data-project-id', projectId);
+            document.getElementById('create-task-btn').style.display = 'flex';
+            document.getElementById('add-status-btn').style.display = 'flex';
+            document.getElementById('remove-status-btn').style.display = 'flex';
         })
         .catch(error => {
             console.error('Error loading project details:', error);
@@ -63,10 +66,13 @@ function showProjectDetails(projectId) {
 
 // Функция для закрытия окна с деталями проекта
 function closeProjectDetails() {
+    document.getElementById('create-task-btn').style.display = 'none';
+    document.getElementById('add-status-btn').style.display = 'none';
     const projectDetails = document.getElementById('project-details');
     projectDetails.innerHTML = ''; // Очищаем содержимое для "закрытия" окна
     document.getElementById('task-list').style.display = 'none';
     document.getElementById('view-tasks-btn').style.display = 'none';
+    document.getElementById('remove-status-btn').style.display = 'none';
     const projectInfoTitle = document.getElementById('project-info-title');
     projectInfoTitle.innerHTML = 'Select a project or<span id="create-project-button" onclick="openCreateProjectModal()">Create Project</span>';
 }
@@ -380,5 +386,133 @@ function createTask(projectId, taskName, taskDescription) {
         .catch(error => {
             console.error('Error creating task:', error);
             alert('Failed to create task');
+        });
+}
+
+// Открыть модальное окно для добавления статуса
+function openAddStatusModal() {
+    document.getElementById('add-status-modal').style.display = 'block';
+}
+
+// Закрыть модальное окно для добавления статуса
+function closeAddStatusModal() {
+    document.getElementById('add-status-modal').style.display = 'none';
+    document.getElementById('new-status-input').value = '';  // Очищаем поле ввода
+}
+
+// Добавить новый статус к проекту
+function addStatus() {
+    const newStatus = document.getElementById('new-status-input').value.trim();
+
+    if (!newStatus) {
+        alert('Please enter a status name');
+        return;
+    }
+
+    // Получаем ID текущего проекта
+    const projectId = sessionStorage.getItem("currentProjectId");
+
+    // Получаем проект, добавляем новый статус и обновляем его на сервере
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch project details');
+            return response.json();
+        })
+        .then(project => {
+            // Добавляем новый статус к списку taskStatuses
+            project.taskStatuses.push(newStatus);
+
+            // Отправляем обновленный проект на сервер
+            return fetch(`/projects/updateProject/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(project)
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update project');
+            alert('Status added successfully!');
+            closeAddStatusModal();  // Закрываем модальное окно
+        })
+        .catch(error => {
+            console.error('Error adding status:', error);
+            alert('Failed to add status');
+        });
+}
+// Открыть модальное окно для удаления статуса
+function openRemoveStatusModal() {
+    const projectId = sessionStorage.getItem("currentProjectId");
+
+    // Получаем данные проекта и загружаем статусы в выпадающий список
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch project details');
+            return response.json();
+        })
+        .then(project => {
+            const statusSelect = document.getElementById('status-select');
+            statusSelect.innerHTML = ''; // Очищаем список
+
+            // Добавляем каждый статус в выпадающий список
+            project.taskStatuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+
+            // Показываем модальное окно
+            document.getElementById('remove-status-modal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error loading project statuses:', error);
+            alert('Failed to load statuses');
+        });
+}
+
+// Закрыть модальное окно для удаления статуса
+function closeRemoveStatusModal() {
+    document.getElementById('remove-status-modal').style.display = 'none';
+}
+
+// Удалить выбранный статус из проекта
+function removeStatus() {
+    const selectedStatus = document.getElementById('status-select').value;
+    const projectId = sessionStorage.getItem("currentProjectId");
+
+    if (!selectedStatus) {
+        alert('Please select a status to remove');
+        return;
+    }
+
+    // Получаем данные проекта, удаляем выбранный статус и обновляем его на сервере
+    fetch(`/projects/getById/${projectId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch project details');
+            return response.json();
+        })
+        .then(project => {
+            // Удаляем выбранный статус из массива taskStatuses
+            project.taskStatuses = project.taskStatuses.filter(status => status !== selectedStatus);
+
+            // Отправляем обновленный проект на сервер
+            return fetch(`/projects/updateProject/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(project)
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update project');
+            alert('Status removed successfully!');
+            closeRemoveStatusModal();  // Закрываем модальное окно
+        })
+        .catch(error => {
+            console.error('Error removing status:', error);
+            alert('Failed to remove status');
         });
 }

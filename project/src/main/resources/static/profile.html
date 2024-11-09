@@ -24,7 +24,9 @@
     <!-- Информация о проекте будет отображаться здесь -->
   </div>
   <button id="view-tasks-btn" onclick="loadProjectTasks()" style="display: none;">View Tasks</button>
-  <button id="create-task-btn" onclick="openCreateTaskModal()">Create Task</button>
+  <button id="create-task-btn" onclick="openCreateTaskModal()" style="display: none;">Create Task</button>
+  <button id="add-status-btn" onclick="openAddStatusModal()" style="display: none;">Add Status</button>
+  <button id="remove-status-btn" onclick="openRemoveStatusModal()" style="display: none;">Remove Status</button>
   <div id="task-list" style="display: none;">
     <!-- Здесь будет список задач проекта -->
   </div>
@@ -98,6 +100,30 @@
     </form>
   </div>
 </div>
+
+<!-- Модальное окно для добавления статуса -->
+<div id="add-status-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddStatusModal()">&times;</span>
+    <h3>Add New Status</h3>
+    <input type="text" id="new-status-input" placeholder="Enter status name" />
+    <button onclick="addStatus()">Add</button>
+  </div>
+</div>
+
+<!-- Модальное окно для удаления статуса -->
+<div id="remove-status-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeRemoveStatusModal()">&times;</span>
+    <h3>Remove Status</h3>
+    <label for="status-select">Select a status to remove:</label>
+    <select id="status-select">
+      <!-- Статусы будут загружены сюда -->
+    </select>
+    <button onclick="removeStatus()">Delete</button>
+  </div>
+</div>
+
 
 <script src="profile_script.js"></script>
 </body>
