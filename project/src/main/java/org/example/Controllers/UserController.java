@@ -34,7 +34,7 @@ public class UserController {
 
     // Получение пользователя по никнейму
     @GetMapping("/getByNickname/{nickname}")
-    public ResponseEntity<User> getUserByNickname(@PathVariable String nickname) {
+    public ResponseEntity<User> getUserByNickname(@PathVariable("nickname") String nickname) {
         Optional<User> user = userService.getUserByNickname(nickname);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

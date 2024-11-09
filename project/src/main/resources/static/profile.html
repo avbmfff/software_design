@@ -13,6 +13,7 @@
     <h2 id="user-name" onclick="openModal()"></h2>
     <p id="user-nickname"></p>
   </div>
+  <button id="search-users-btn" onclick="openSearchUsersModal()">Search Users</button>
   <h3>Projects</h3>
   <ul id="project-list" class="project-list">
     <!-- Список проектов будет загружаться сюда -->
@@ -23,6 +24,7 @@
   <div id="project-details">
     <!-- Информация о проекте будет отображаться здесь -->
   </div>
+  <button id="add-user-btn" onclick="openAddUserModal()" style="display: none;">Add User to Project</button>
   <button id="view-tasks-btn" onclick="loadProjectTasks()" style="display: none;">View Tasks</button>
   <button id="create-task-btn" onclick="openCreateTaskModal()" style="display: none;">Create Task</button>
   <button id="add-status-btn" onclick="openAddStatusModal()" style="display: none;">Add Status</button>
@@ -121,6 +123,35 @@
       <!-- Статусы будут загружены сюда -->
     </select>
     <button onclick="removeStatus()">Delete</button>
+  </div>
+</div>
+
+<!-- Модальное окно для добавления пользователя -->
+<div id="add-user-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddUserModal()">&times;</span>
+    <h3>Add User to Project</h3>
+    <label for="username-input">Enter username:</label>
+    <input type="text" id="username-input" placeholder="Username">
+    <button onclick="addUserToProject()">Add</button>
+  </div>
+</div>
+
+<!-- Модальное окно для поиска пользователей -->
+<div id="search-users-modal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeSearchUsersModal()">&times;</span>
+    <h3>Search User by Nickname</h3>
+    <label for="search-username-input">Enter username:</label>
+    <input type="text" id="search-username-input" placeholder="Username">
+    <button onclick="searchUser()">Search</button>
+
+    <!-- Контейнер для отображения информации о пользователе -->
+    <div id="user-details" style="display: none; margin-top: 20px;">
+      <h4>User Details</h4>
+      <p><strong>Name:</strong> <span id="user-details-name"></span></p>
+      <p><strong>Nickname:</strong> <span id="user-details-nickname"></span></p>
+    </div>
   </div>
 </div>
 

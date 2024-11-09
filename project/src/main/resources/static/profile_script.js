@@ -42,6 +42,7 @@ function showProjectDetails(projectId) {
     fetch(`/projects/getById/${projectId}`)
         .then(response => response.json())
         .then(project => {
+            const projectAuthor = project.authorId;
             document.getElementById('project-info-title').textContent = project.name;
             const projectDetails = document.getElementById('project-details');
             projectDetails.innerHTML = `
@@ -57,6 +58,9 @@ function showProjectDetails(projectId) {
             document.getElementById('create-task-btn').style.display = 'flex';
             document.getElementById('add-status-btn').style.display = 'flex';
             document.getElementById('remove-status-btn').style.display = 'flex';
+            if(JSON.parse(sessionStorage.getItem("user")).id === projectAuthor) {
+                document.getElementById('add-user-btn').style.display = 'flex';
+            }
         })
         .catch(error => {
             console.error('Error loading project details:', error);
@@ -73,6 +77,7 @@ function closeProjectDetails() {
     document.getElementById('task-list').style.display = 'none';
     document.getElementById('view-tasks-btn').style.display = 'none';
     document.getElementById('remove-status-btn').style.display = 'none';
+    document.getElementById('add-user-btn').style.display = 'none';
     const projectInfoTitle = document.getElementById('project-info-title');
     projectInfoTitle.innerHTML = 'Select a project or<span id="create-project-button" onclick="openCreateProjectModal()">Create Project</span>';
 }
@@ -514,5 +519,108 @@ function removeStatus() {
         .catch(error => {
             console.error('Error removing status:', error);
             alert('Failed to remove status');
+        });
+}
+// Открыть модальное окно для добавления пользователя
+function openAddUserModal() {
+    document.getElementById('add-user-modal').style.display = 'block';
+}
+
+// Закрыть модальное окно для добавления пользователя
+function closeAddUserModal() {
+    document.getElementById('add-user-modal').style.display = 'none';
+}
+
+// Добавить пользователя в проект по никнейму
+function addUserToProject() {
+    const username = document.getElementById('username-input').value.trim();
+    if (!username) {
+        alert('Please enter a user\'s nickname');
+        return;
+    }
+
+    const projectId = sessionStorage.getItem("currentProjectId");
+
+    // Поиск пользователя по никнейму
+    fetch(`/users/getByNickname/${username}`)
+        .then(response => {
+            if (!response.ok) throw new Error('User not found');
+            return response.json();
+        })
+        .then(user => {
+            const userId = user.id; // Получаем ID найденного пользователя
+
+            // Получаем проект и добавляем пользователя в workersIds
+            return fetch(`/projects/getById/${projectId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch project details');
+                    return response.json();
+                })
+                .then(project => {
+                    // Добавляем userId в массив workersIds, если его там еще нет
+                    if (!project.workersIds.includes(userId)) {
+                        project.workersIds.push(userId);
+
+                        // Отправляем обновленный проект на сервер
+                        return fetch(`/projects/updateProject/${projectId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(project)
+                        });
+                    } else {
+                        alert('User is already a member of this project');
+                        return Promise.reject('User already added');
+                    }
+                });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update project');
+            alert('User added successfully!');
+            closeAddUserModal();  // Закрываем модальное окно
+        })
+        .catch(error => {
+            console.error('Error adding user to project:', error);
+            if (error !== 'User already added') alert('Failed to add user to project');
+        });
+}
+
+// Открыть модальное окно для поиска пользователей
+function openSearchUsersModal() {
+    document.getElementById('search-users-modal').style.display = 'block';
+}
+
+// Закрыть модальное окно для поиска пользователей
+function closeSearchUsersModal() {
+    document.getElementById('search-users-modal').style.display = 'none';
+    document.getElementById('search-username-input').value = ''; // Очистить поле ввода
+    document.getElementById('user-details').style.display = 'none'; // Скрыть детали пользователя
+}
+
+// Функция для поиска пользователя по никнейму
+function searchUser() {
+    const username = document.getElementById('search-username-input').value.trim();
+    if (!username) {
+        alert('Please enter a username');
+        return;
+    }
+
+    fetch(`/users/getByNickname/${username}`)
+        .then(response => {
+            if (!response.ok) throw new Error('User not found');
+            return response.json();
+        })
+        .then(user => {
+            // Отображаем информацию о пользователе
+            document.getElementById('user-details-name').textContent = user.name;
+            document.getElementById('user-details-nickname').textContent = user.nickname;
+
+            document.getElementById('user-details').style.display = 'block'; // Показать блок с информацией о пользователе
+        })
+        .catch(error => {
+            console.error('Error finding user:', error);
+            alert('User not found');
+            document.getElementById('user-details').style.display = 'none'; // Скрыть блок с информацией о пользователе
         });
 }
