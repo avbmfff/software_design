@@ -210,8 +210,17 @@ function showTaskDetails(taskId) {
         <ul>
           ${workerNicknames.map(nickname => `<li>${nickname}</li>`).join('')}
         </ul>
+        <button id="join-task-btn" style="display: none;" onclick="joinTask(${task.id})">Join Task</button>
       `;
-
+            if(!task.workersIds.includes(JSON.parse(sessionStorage.getItem("user")).id)){
+                document.getElementById('join-task-btn').style.display = 'flex';
+                document.getElementById('set-status-btn').style.display = 'none';
+                document.getElementById('task-status-select').style.display = 'none';
+            }
+            else{
+                document.getElementById('set-status-btn').style.display = 'flex';
+                document.getElementById('task-status-select').style.display = 'flex';
+            }
             loadProjectStatuses(JSON.parse(sessionStorage.getItem("currentProjectId")), task.status, task.id);
 
             document.getElementById('task-info-modal').style.display = 'flex';
@@ -224,6 +233,7 @@ function showTaskDetails(taskId) {
 
 // Функция для закрытия модального окна
 function closeTaskInfoModal() {
+    document.getElementById('join-task-btn').style.display = 'none';
     document.getElementById('task-info-modal').style.display = 'none';
 }
 
@@ -622,5 +632,36 @@ function searchUser() {
             console.error('Error finding user:', error);
             alert('User not found');
             document.getElementById('user-details').style.display = 'none'; // Скрыть блок с информацией о пользователе
+        });
+}
+
+function joinTask(taskId) {
+    const userId = JSON.parse(sessionStorage.getItem('user')).id;
+
+    // Сначала получаем данные задачи
+    fetch(`/tasks/getById/${taskId}`)
+        .then(response => response.json())
+        .then(task => {
+            // Добавляем текущего пользователя в список работников
+            task.workersIds.push(userId);
+
+            // Отправляем обновленные данные задачи на сервер
+            return fetch(`/tasks/updateTask/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to join task');
+            alert('Successfully joined the task');
+            document.getElementById('join-task-btn').style.display = 'none'; // Скрываем кнопку
+            showTaskDetails(taskId); // Обновляем информацию о задаче
+        })
+        .catch(error => {
+            console.error('Error joining task:', error);
+            alert('Failed to join task');
         });
 }
